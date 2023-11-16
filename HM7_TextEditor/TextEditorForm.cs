@@ -4,17 +4,33 @@ namespace HM7_TextEditor
 {
     public partial class TextEditorForm : Form
     {
-        private TextBox editorTextBox;
-        private string fileName;
+        public TextBox? EditorTextBox { get; set; }
+        private string? fileName;
         public TextEditorForm()
         {
             Load += (s, e) =>
             {
                 InitializeEditorTextBox();
                 InitilizeMenu();
+                InitilizeContextMenu();
             };
             InitializeComponent();
         }
+
+        private void InitilizeContextMenu()
+        {
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+
+            ToolStripMenuItem copyItem = CreateMenuItem("Copy", Keys.Control | Keys.C, (s, e) => EditorTextBox.Copy());
+            ToolStripMenuItem cutItem = CreateMenuItem("Cut", Keys.Control | Keys.X, (s, e) => EditorTextBox.Cut());
+            ToolStripMenuItem pasteItem = CreateMenuItem("Paste", Keys.Control | Keys.V, (s, e) => EditorTextBox.Paste());
+            ToolStripMenuItem undoItem = CreateMenuItem("Undo", Keys.Control | Keys.Z, (s, e) => EditorTextBox.Undo());
+
+            contextMenu.Items.AddRange(new ToolStripItem[] { copyItem, cutItem, pasteItem, undoItem });
+
+            EditorTextBox.ContextMenuStrip = contextMenu;
+        }
+
         private void InitilizeMenu()
         {
             MenuStrip menuStrip = new MenuStrip();
@@ -26,19 +42,19 @@ namespace HM7_TextEditor
         }
         private void InitializeEditorTextBox()
         {
-            editorTextBox = new TextBox()
+            EditorTextBox = new TextBox()
             {
                 Dock = DockStyle.Fill,
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical
             };
-            Controls.Add(editorTextBox);
+            Controls.Add(EditorTextBox);
         }
         private void AddFileMenu(MenuStrip menuStrip)
         {
             ToolStripMenuItem fileMenu = new ToolStripMenuItem("File");
 
-            ToolStripMenuItem newFileItem = CreateMenuItem("New", Keys.Control | Keys.N, (s, e) => editorTextBox.Clear());
+            ToolStripMenuItem newFileItem = CreateMenuItem("New", Keys.Control | Keys.N, (s, e) => EditorTextBox.Clear());
             ToolStripMenuItem openFileItem = CreateMenuItem("Open", Keys.Control | Keys.O, (s, e) => OpenFile());
             ToolStripMenuItem saveFileItem = CreateMenuItem("Save", Keys.Control | Keys.S, (s, e) => SaveDocument());
 
@@ -50,10 +66,10 @@ namespace HM7_TextEditor
         {
             ToolStripMenuItem editMenu = new ToolStripMenuItem("Edit");
 
-            ToolStripMenuItem copyItem = CreateMenuItem("Copy", Keys.Control | Keys.C, (s, e) => editorTextBox.Copy());
-            ToolStripMenuItem cutItem = CreateMenuItem("Cut", Keys.Control | Keys.X, (s, e) => editorTextBox.Cut());
-            ToolStripMenuItem pasteItem = CreateMenuItem("Paste", Keys.Control | Keys.V, (s, e) => editorTextBox.Paste());
-            ToolStripMenuItem undoItem = CreateMenuItem("Undo", Keys.Control | Keys.Z, (s, e) => editorTextBox.Undo());
+            ToolStripMenuItem copyItem = CreateMenuItem("Copy", Keys.Control | Keys.C, (s, e) => EditorTextBox.Copy());
+            ToolStripMenuItem cutItem = CreateMenuItem("Cut", Keys.Control | Keys.X, (s, e) => EditorTextBox.Cut());
+            ToolStripMenuItem pasteItem = CreateMenuItem("Paste", Keys.Control | Keys.V, (s, e) => EditorTextBox.Paste());
+            ToolStripMenuItem undoItem = CreateMenuItem("Undo", Keys.Control | Keys.Z, (s, e) => EditorTextBox.Undo());
 
             editMenu.DropDownItems.AddRange(new ToolStripItem[] { copyItem, cutItem, pasteItem, undoItem });
 
@@ -91,7 +107,7 @@ namespace HM7_TextEditor
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 fileName = openFileDialog.FileName;
-                editorTextBox.Text = File.ReadAllText(fileName);
+                EditorTextBox.Text = File.ReadAllText(fileName);
             }
         }
         private void SaveDocument()
@@ -105,27 +121,27 @@ namespace HM7_TextEditor
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 fileName = saveFileDialog.FileName;
-                File.WriteAllText(fileName, editorTextBox.Text);
+                File.WriteAllText(fileName, EditorTextBox.Text);
             }
         }
         private void SetBackgroundColor()
         {
             ColorDialog colorDialog = new ColorDialog();
-            if (colorDialog.ShowDialog() == DialogResult.OK) { editorTextBox.BackColor = colorDialog.Color; }
+            if (colorDialog.ShowDialog() == DialogResult.OK) { EditorTextBox.BackColor = colorDialog.Color; }
         }
         private void SetTextColor()
         {
             ColorDialog colorDialog = new ColorDialog();
-            if (colorDialog.ShowDialog() == DialogResult.OK) { editorTextBox.ForeColor = colorDialog.Color; }
+            if (colorDialog.ShowDialog() == DialogResult.OK) { EditorTextBox.ForeColor = colorDialog.Color; }
         }
         private void ApplyFontSettings()
         {
             FontDialog fontDialog = new FontDialog();
-            if (fontDialog.ShowDialog() == DialogResult.OK) { editorTextBox.Font = fontDialog.Font; }
+            if (fontDialog.ShowDialog() == DialogResult.OK) { EditorTextBox.Font = fontDialog.Font; }
         }
         private void TextEditorForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (editorTextBox.Text != string.Empty)
+            if (EditorTextBox.Text != string.Empty)
             {
                 DialogResult result = MessageBox.Show("Save current Document to File and close Dialog Window?", "Close Program?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
